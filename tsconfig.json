@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "noImplicitReturns": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "removeComments": true,
+    "target": "ESNext",
+    "module": "none",
+    "outFile": "modules/index.js",
+    "rootDir": "./src",
+    "ignoreDeprecations": "6.0",
+    "strict": false
+  },
+  "include": [
+    "src/**/*",
+    "node_modules/nakama-runtime/index.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "build"
+  ]
+}
