@@ -156,6 +156,12 @@ function matchLoop(ctx, logger, nk, dispatcher, tick, state, messages) {
         }
         if (!state.winner)
             state.winner = "draw";
+        var playerIds = Object.keys(state.presences);
+        for (var i = 0; i < playerIds.length; i++) {
+            var pid = playerIds[i];
+            var result = (state.winner === "draw") ? "draw" : (pid === state.winner ? "win" : "loss");
+            updateLeaderboard(nk, pid, result);
+        }
         dispatcher.broadcastMessage(OpCode.DONE, JSON.stringify({ winner: state.winner, reason: "timeout" }));
         return { state: state };
     }
@@ -172,14 +178,23 @@ function matchLoop(ctx, logger, nk, dispatcher, tick, state, messages) {
                 var winStatus = checkWin(state.board);
                 if (winStatus) {
                     state.winner = (winStatus === "draw") ? "draw" : m.sender.userId;
-                    dispatcher.broadcastMessage(OpCode.DONE, JSON.stringify({ board: state.board, winner: state.winner, lastMove: index }));
-                    if (state.winner !== "draw") {
-                        var keys = Object.keys(state.presences);
-                        for (var j = 0; j < keys.length; j++) {
-                            var matchResult = (state.winner === "draw" ? "draw" : (keys[j] === state.winner) ? "win" : "loss");
-                            updateLeaderboard(nk, keys[j], matchResult);
+                    var playerIds = Object.keys(state.presences);
+                    for (var j = 0; j < playerIds.length; j++) {
+                        var pid = playerIds[j];
+                        var matchResult = "loss";
+                        if (state.winner === "draw") {
+                            matchResult = "draw";
                         }
+                        else if (pid === state.winner) {
+                            matchResult = "win";
+                        }
+                        updateLeaderboard(nk, pid, matchResult);
                     }
+                    dispatcher.broadcastMessage(OpCode.DONE, JSON.stringify({
+                        board: state.board,
+                        winner: state.winner,
+                        lastMove: index
+                    }));
                 }
                 else {
                     var keys = Object.keys(state.marks);
